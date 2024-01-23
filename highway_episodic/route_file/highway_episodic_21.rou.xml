@@ -1,0 +1,24 @@
+<routes>
+        <vType accel="3" decel="4.5" departSpeed = "22" id="car" length="5" maxSpeed="22.22" minGap="0.0" sigma="1" lcSpeedGain ="0"/>
+        <vType accel="2.5" decel="4.5" departSpeed = "33" emergencyDecel="9.0" id="truck" length="12" maxSpeed="33.3333" minGap="0.0" sigma="1" collisionMinGapFactor="0" tau="0.0001" lcSpeedGain ="0" vClass="truck"/>
+        <vType accel="2.5" decel="4.5" departSpeed = "33" id="accel_truck" length="12" maxSpeed="33.3333" minGap="0.0" sigma="1" collisionMinGapFactor="0" tau="0.0001" lcSpeedGain ="0" vClass="truck"/>
+        <route id="route0" color="1,1,0" edges="E5"/>
+        
+        <vehicle id="ego" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="95" departLane="1" color="0,1,0"/>   
+                
+        <vehicle id="car.leftrear0" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="25.951454359689002" departLane="2" color="1,1,0"/>
+        <vehicle id="car.leftrear1" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="55.73323679218694" departLane="2" color="1,1,0"/>
+        <vehicle id="accel.rear" type="accel_truck" route="route0" depart="0.00" departSpeed="max" departPos="0" departLane="1" color="1,0,0"/>
+        <vehicle id="car.rightrear0" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="40.25618876489904" departLane="0" color="1,1,0"/> 
+        <vehicle id="car.rightrear1" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="72.72942335018696" departLane="0" color="1,1,0"/> 
+        <vehicle id="car.leftforward0" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="95.32932476501233" departLane="2" color="1,1,0"/>
+        <vehicle id="car.leftforward1" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="132.83680771515515" departLane="2" color="1,1,0"/>
+        <vehicle id="car.leftforward2" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="160.49505996478297" departLane="2" color="1,1,0"/>
+        <vehicle id="car.forward" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="195" departLane="1" color="1,1,0"/>
+        <vehicle id="car.rightforward0" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="109.3985520064001" departLane="0" color="1,1,0"/> 
+        <vehicle id="car.rightforward1" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="144.26661324684008" departLane="0" color="1,1,0"/>
+        <vehicle id="car.rightforward2" type="car" route="route0" depart="0.00" departSpeed="avg" departPos="175.61730815928763" departLane="0" color="1,1,0"/> 
+        
+                    
+        
+</routes>

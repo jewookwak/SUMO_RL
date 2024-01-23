@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- generated on 2024-01-09 09:31:56 by Eclipse SUMO GUI Version 1.16.0
+<configuration xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/sumoConfiguration.xsd">
+
+    <input>
+        <net-file value="C:/Users/jewoo/OneDrive/바탕 화면/SUMO/highway_episodic/highway_episodic.net.xml"/>
+        <route-files value="C:/Users/jewoo/OneDrive/바탕 화면/SUMO/highway_episodic/highway_episodic.rou.xml"/>
+    </input>
+
+    <output>
+        <collision-output value="colliderSpeed"/>
+    </output>
+
+    <time>
+        <step-length value="0.01"/>
+    </time>
+
+    <processing>
+        <collision.action value="remove"/>
+        <collision.mingap-factor value="0"/>
+        <lanechange.duration value="2"/>
+    </processing>
+
+    <report>
+        <no-step-log value="true"/>
+    </report>
+
+    <traci_server>
+        <remote-port value="2754"/>
+    </traci_server>
+
+    <gui_only>
+        <gui-settings-file value="C:/Users/jewoo/OneDrive/바탕 화면/SUMO/highway_episodic/viewsettings.xml"/>
+        <quit-on-end value="true"/>
+        <start value="true"/>
+    </gui_only>
+
+</configuration>
+-->
+
+<collisions xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/collision_file.xsd">
+    <collision time="4.95" type="collision" lane="E5_1" pos="198.41" collider="accel.rear" victim="ego" colliderType="accel_truck@accel.rear" victimType="car@ego" colliderSpeed="46.88" victimSpeed="19.83"/>
+</collisions>

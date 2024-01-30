@@ -1,0 +1,13 @@
+<routes>
+        <vType accel="3" decel="4.5" departSpeed = "22" id="car" length="5" maxSpeed="22.22" minGap="0.0" sigma="1" lcSpeedGain ="0" />
+        <vType accel="3" decel="4.5" departSpeed = "22" id="ego_car" length="5" maxSpeed="22.22" minGap="0.0" sigma="1" lcSpeedGain ="0" color="0,1,0"/>
+        <vType accel="2.5" decel="4.5" departSpeed = "33" emergencyDecel="9.0" id="truck" length="12" maxSpeed="33.3333" minGap="0.0" sigma="1" collisionMinGapFactor="0" tau="0.0001" lcSpeedGain ="0" vClass="truck" color="0,0,1"/>
+        <vType accel="2.5" decel="4.5" departSpeed = "33" id="accel_truck" length="12" maxSpeed="33.3333" minGap="0.0" sigma="1" collisionMinGapFactor="0" tau="0.0001" lcSpeedGain ="0" vClass="truck" color="1,0,0"/>
+        <route id="route0" color="1,1,0" edges="E5"/>
+        
+
+
+        
+                    
+        
+</routes>

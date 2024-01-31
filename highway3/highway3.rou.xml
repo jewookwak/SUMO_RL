@@ -1,0 +1,18 @@
+<routes>
+        <vType accel="2.5" decel="4.5" departSpeed = "22" id="car" length="5" maxSpeed="22.22" minGap="2.0" sigma="1" lcSpeedGain ="0"/>
+        <vType accel="2.5" decel="4.5" departSpeed = "33" emergencyDecel="9.0" id="truck" length="12" maxSpeed="33.3333" minGap="1.0" sigma="1" lcSpeedGain ="0"/>
+        <vType accel="2.5" decel="4.5"   departSpeed = "33" id="accel_truck" length="12" maxSpeed="33.3333" minGap="0.0" sigma="1" collisionMinGapFactor="0" tau="0.0001" lcSpeedGain ="0"/>
+ 
+        
+        
+        <flow id="car0" departPos="free" begin="0.00" from="E4" to="E6" end="50.00" number="20" departSpeed="max" type="car" color="0,1,0"/>
+        <flow id="car1" departPos="free" begin="0.00" from="E4" to="E8" end="50.00" number="20" departSpeed="max" type="car" color="0,1,0"/>
+        <flow id="car2" departPos="free" begin="0.00" from="E7" to="E6" end="50.00" number="20" departSpeed="max" type="car" color="0,1,0"/>
+        <flow id="car3" departPos="free" begin="0.00" from="E7" to="E8" end="50.00" number="20" departSpeed="max" type="car" color="0,1,0"/>
+        
+        <flow id="truck0" departPos="free" begin="7.00" from="E4" to="E6" end="50.00" number="5" departSpeed="max" type="truck" color="0,0,1"/>        
+        <flow id="truck1" departPos="free" begin="8.00" from="E7" to="E8" end="50.00" number="5" departSpeed="max" type="truck" color="0,0,1"/>
+              
+        <flow id="accel0"  departPos="free" begin="11.00" from="E4" to="E6" end="50.00" number="5" type="accel_truck" color="1,0,0"/>
+        <flow id="accel1"  departPos="free" begin="11.00" from="E7" to="E8" end="50.00" number="5" type="accel_truck" color="1,0,0"/>
+</routes>

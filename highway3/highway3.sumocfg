@@ -1,0 +1,6 @@
+<configuration>
+    <input>
+       <net-file value="highway3.net.xml" />
+       <route-files value="highway3.rou.xml" />
+    </input>
+</configuration>

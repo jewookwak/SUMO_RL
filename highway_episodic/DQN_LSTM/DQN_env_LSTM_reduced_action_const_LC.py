@@ -84,7 +84,7 @@ class rlEnv():
     Right_SD = False
     Left_SD = False
     Front_SD = True
-    gui_on = True
+    gui_on = False
     vehicles_tau=[random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27)]
     def __init__(self, sumoBinary, net_file: str, cfg_file: str,  veh:str, use_gui: bool = True,
             begin_time: int =0, step_length: int = 0.01):
@@ -1474,7 +1474,7 @@ class rlEnv():
         if (action == 1 or action == 3) and rlEnv.Left_action == True:
             action = 5
         if (action == 2 or action == 4) and rlEnv.Right_action == True:
-            action =6
+            action = 6
         id = 'ego'
         time_gap_LC_1 =1
         time_gap_LC_2 =0.5 
@@ -1493,7 +1493,7 @@ class rlEnv():
             Left_follower_id = self.__find_followers(id, v,LEFT_FOLLOWER,RIGHT_FOLLOWER)[0]
             Right_follower_id = self.__find_followers(id, v,LEFT_FOLLOWER,RIGHT_FOLLOWER)[1]
         traci.vehicle.unsubscribeContext(str(id), tc.CMD_GET_VEHICLE_VARIABLE, 200.0)
-        if action == 5 and traci.vehicle.getLaneIndex(id) == 1: #왼쪽 차로로 이동
+        if traci.vehicle.getLaneIndex(id) == 1: 
             if len(traci.vehicle.getLeftLeaders(id)) !=0 and Left_follower_id is not None: # 왼쪽 차로 앞 뒤 차량이 100m 안에 있다는 가정.
                 front_relative_velocity_term = max( [traci.vehicle.getSpeed(id) - traci.vehicle.getSpeed(Left_leader_id[0][0]) ,0] )*time_gap_LC_1
                 front_minimum_clearance_trem = max([traci.vehicle.getSpeed(id)*time_gap_LC_2,c_LC])
@@ -1507,7 +1507,7 @@ class rlEnv():
                     rlEnv.Left_SD = True
                 else:
                     rlEnv.Left_SD = False
-        if action == 6  and traci.vehicle.getLaneIndex(id) == 1: #오른쪽 차로로 이동
+        
             if len(traci.vehicle.getRightLeaders(id))!=0 and Right_follower_id is not None: # 오른쪽 차로 앞 뒤 차량이 100m 안에 있다는 가정.
                 front_relative_velocity_term = max( [traci.vehicle.getSpeed(id) - traci.vehicle.getSpeed(Right_leader_id[0][0]) ,0] )*time_gap_LC_1
                 front_minimum_clearance_trem = max([traci.vehicle.getSpeed(id)*time_gap_LC_2,c_LC])
@@ -1595,16 +1595,16 @@ class rlEnv():
             # print('back_SD_LC: ',back_SD_LC)
             # print('front_SD_LC: ',front_SD_LC)
             if((traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(follower_id)[0])>= back_SD_LC):
-                print('LaneChange_SD_negative_reward -> None ')
+                # print('LaneChange_SD_negative_reward -> None ')
                 return 0
             elif((traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) < front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(follower_id)[0])>= back_SD_LC):
-                print('LaneChange_SD_negative_reward-> forward ')
+                # print('LaneChange_SD_negative_reward-> forward ')
                 return (traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) - front_SD_LC 
             elif((traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(follower_id)[0]) < back_SD_LC):
-                print('LaneChange_SD_negative_reward-> rear ')
+                # print('LaneChange_SD_negative_reward-> rear ')
                 return (ego_x_pos -traci.vehicle.getPosition(follower_id)[0]) - back_SD_LC
             else:
-                print('LaneChange_SD_negative_reward-> forward and rear')
+                # print('LaneChange_SD_negative_reward-> forward and rear')
                 return-50
 
         elif action == 5 and traci.vehicle.getLaneIndex(id) == 1: #왼쪽 차로로 이동
@@ -1617,16 +1617,16 @@ class rlEnv():
                 back_SD_LC = back_relative_velocity_term + back__minimum_clearance_trem
 
                 if((traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0])>= back_SD_LC):
-                    print("LaneChange_SD_negative_reward : left 0")
+                    # print("LaneChange_SD_negative_reward : left 0")
                     return 0                    
                 elif((traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) < front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0])>= back_SD_LC):
-                    print('LaneChange_SD_negative_reward : left forward   ',(traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC )
+                    # print('LaneChange_SD_negative_reward : left forward   ',(traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC )
                     return (traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC 
                 elif((traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) < back_SD_LC):
-                    print('LaneChange_SD_negative_reward : left rear   ',(ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) - back_SD_LC)
+                    # print('LaneChange_SD_negative_reward : left rear   ',(ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) - back_SD_LC)
                     return (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) - back_SD_LC
                 else:
-                    print('LaneChange_SD_negative_reward : left forward and rear    ',-50)
+                    # print('LaneChange_SD_negative_reward : left forward and rear    ',-50)
                     return-50
             else:
                 return 0
@@ -1641,16 +1641,16 @@ class rlEnv():
                 back__minimum_clearance_trem = max([traci.vehicle.getSpeed(Right_follower_id)*time_gap_LC_2,c_LC])
                 back_SD_LC = back_relative_velocity_term + back__minimum_clearance_trem
                 if((traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) >=front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0])>=back_SD_LC):
-                    print('LaneChange_SD_negative_reward : right 0')
+                    # print('LaneChange_SD_negative_reward : right 0')
                     return 0
                 elif((traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) <front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0])>=back_SD_LC): 
-                    print('LaneChange_SD_negative_reward : right forward     ',(traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC)
+                    # print('LaneChange_SD_negative_reward : right forward     ',(traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC)
                     return (traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC
                 elif((traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) >=front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0])<back_SD_LC):
-                    print('LaneChange_SD_negative_reward : right rear     ',(ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0]) - back_SD_LC)
+                    # print('LaneChange_SD_negative_reward : right rear     ',(ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0]) - back_SD_LC)
                     return (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0]) - back_SD_LC
                 else:
-                    print('LaneChange_SD_negative_reward : right forward and rear     ',-50)
+                    # print('LaneChange_SD_negative_reward : right forward and rear     ',-50)
                     return -50
             else:
                 return 0
@@ -1687,13 +1687,14 @@ class rlEnv():
             rear_v = traci.vehicle.getSpeed('accel.rear')
             rear_TTC = rear_clearance/(rear_v-ego_v)
         else:
-            rear_TTC = 4
+            rear_TTC = 0
         self.__SD_check(action)
         self.__Front_SD_check()
+        # print('rlEnv.Left_SD: ',rlEnv.Left_SD )
+        # print('rlEnv.Right_SD: ',rlEnv.Right_SD)
+        # print('rlEnv.Front_SD: ',rlEnv.Front_SD)
         if action == 7 and Lane == 1 and np.abs(LLP)<=0.56 and (rear_TTC<2.4  and (rlEnv.Left_SD == False and rlEnv.Right_SD == False))and rlEnv.Front_SD:
-            print('rlEnv.Left_SD: ',rlEnv.Left_SD )
-            print('rlEnv.Right_SD: ',rlEnv.Right_SD)
-            print('rlEnv.Front_SD: ',rlEnv.Front_SD)
+            # print('in action 7 reward')
             reward=0 #reward 0
             Reward.append(0)
             Reward.append(0)
@@ -1746,7 +1747,7 @@ class rlEnv():
                     reward +=0
 
                 rear_clearance = traci.vehicle.getPosition('ego')[0] - traci.vehicle.getPosition('accel.rear')[0]
-                print('rear_clearance: ',rear_clearance)
+                # print('rear_clearance: ',rear_clearance)
                     # print('rear_clearance: ',rear_clearance) 
                 if traci.vehicle.getLaneIndex('ego')==1:
                     if(rear_clearance<=80 and rear_clearance>=0): # 차로 변경을 위한 가장큰 빈공간의 중앙에 가까워질 수 록 보상을 준다.

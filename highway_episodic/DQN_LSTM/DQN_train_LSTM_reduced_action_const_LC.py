@@ -47,7 +47,7 @@ def save_result():
     col2 = ['LC_succeed_num','collision_num']
     df_final_result = pd.DataFrame(final_result,columns=col2)
 
-    path = "C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/DQN_LSTM/result4/"
+    path = "/home/mds/Desktop/highway_episodic/DQN/result4/"
     os.chdir(path)
     now = datetime.now()
     date = str(now.date()) +str('_')+str(now.time())
@@ -58,9 +58,9 @@ def save_result():
 def get_options():
     optParser = optparse.OptionParser()
     optParser.add_option("-N","--episodenum", 
-                        default=2001, help="numer of episode to run qlenv")
+                        default=10001, help="numer of episode to run qlenv")
     optParser.add_option("--nogui", action="store_true",
-                        default=False , help="run commandline version of sumo")
+                        default=True , help="run commandline version of sumo")
     options, args = optParser.parse_args()
     return options 
 
@@ -71,7 +71,7 @@ def rl_run(sumoBinary, episodenum,net, sumocfg,step_length, veh):
     
     score_avg = 0    
     
-    for episode in range(episodenum):
+    for episode in range(900,episodenum):
 
         score = 0
         result =[]
@@ -96,22 +96,22 @@ def rl_run(sumoBinary, episodenum,net, sumocfg,step_length, veh):
         action = agent.get_action(state_memory,last_action)
         if action == 5:
             action = 7
-
         while (env.done) == False:  
+            
             if action == 0 or action == 1 or action == 2 or action ==3 or action ==4 or action == 7:
                 # print('action:::::::::::::::::::::::::::::::::::::::::::::::::',action)
-                if action ==7:
-                    print('action:::::::::::::::::::::::::::::                ',action)
-                if action ==0:
-                    print('action:::::::::::::::::::::::::::::                ',action)
-                elif action ==1:
-                    print('action:::::::::::::::::::::::::::::            ',action)
-                elif action ==2:
-                    print('action:::::::::::::::::::::::::::::                    ',action)
-                elif action ==3:
-                    print('action:::::::::::::::::::::::::::::               ',action)
-                elif action ==4:
-                    print('action:::::::::::::::::::::::::::::                 ',action)
+                # if action ==7:
+                #     print('action:::::::::::::::::::::::::::::                ',action)
+                # if action ==0:
+                #     print('action:::::::::::::::::::::::::::::                ',action)
+                # elif action ==1:
+                #     print('action:::::::::::::::::::::::::::::            ',action)
+                # elif action ==2:
+                #     print('action:::::::::::::::::::::::::::::                    ',action)
+                # elif action ==3:
+                #     print('action:::::::::::::::::::::::::::::               ',action)
+                # elif action ==4:
+                #     print('action:::::::::::::::::::::::::::::                 ',action)
                 next_state, reward = env.step(action) ### 1 ###
                 next_state = np.reshape(next_state, [1, state_size])
                 if len(next_state_memory)>agent.sequence_length-1:
@@ -133,12 +133,9 @@ def rl_run(sumoBinary, episodenum,net, sumocfg,step_length, veh):
                 else:
                     state_memory = np.append(state_memory,state,axis = 0)
                 last_action = action
-                action = agent.get_action(state_memory,last_action) 
-                # print('env.Left_action: ',env.Left_action)
-                
+                action = agent.get_action(state_memory,last_action)
                 if action == 5:
                     action = 7 
-                
                 
 
 
@@ -156,9 +153,12 @@ def rl_run(sumoBinary, episodenum,net, sumocfg,step_length, veh):
                 collisions_num.append(env.collision_num)
                 
                 # 이동 평균이 70 이상일 때 종료
-                # if score_avg > 70:
-                if episode == episodenum-1 or (episode+1)%100 ==0:
-                    agent.model.save_weights('C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/DQN_LSTM/save_model/model', save_format="tf")
+                if score_avg >= 150:
+                    agent.model.save_weights("/home/mds/Desktop/highway_episodic/DQN/DQN_LSTM/save_model/best_model", save_format="tf")
+                if episode == episodenum-1 or (episode+1)%50 ==0:
+                    agent.model.save_weights("/home/mds/Desktop/highway_episodic/DQN/DQN_LSTM/save_model/model", save_format="tf")
+                    # with open("/home/mds/Desktop/highway_episodic/DQN/save_model20/memory/6/replaybuffer"+str(episode), "wb") as file:
+                    #     pickle.dump(agent.memory, file)
                 if episode == episodenum-1:
                     sys.exit()
 
@@ -176,7 +176,7 @@ def rl_run(sumoBinary, episodenum,net, sumocfg,step_length, veh):
         env.end()
         
 
-        if ((episode+1)%100) == 0 and not episode ==0:
+        if ((episode+1)%50) == 0 and not episode ==0:
             print('LC_succeed_num: ',env.LC_succeed_num)
             print('collision_num: ',env.collision_num)
             value = []
@@ -188,19 +188,19 @@ def rl_run(sumoBinary, episodenum,net, sumocfg,step_length, veh):
             pylab.plot(episodes, scores, 'b')
             pylab.xlabel("episode")
             pylab.ylabel("average score")
-            pylab.savefig('C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/DQN_LSTM/save_graph/train_graph.png')
+            pylab.savefig("/home/mds/Desktop/highway_episodic/DQN/DQN_LSTM/save_graph/train_graph_const_action.png")
 
             plt.figure(2,figsize=(8,4))                
             pylab.plot(episodes,collisions_num,'r')
             pylab.xlabel("episode")
             pylab.ylabel("collision number")
-            pylab.savefig('C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/DQN_LSTM/save_graph/train_collision.png')
+            pylab.savefig("/home/mds/Desktop/highway_episodic/DQN/DQN_LSTM/save_graph/train_collision_const_action.png")
 
 # 상태가 입력, 큐함수가 출력인 인공신경망 생성
 class DQN(tf.keras.Model):
     def __init__(self, action_size,state_size,batch_size,sequence_length):
         super(DQN, self).__init__()
-        self.lstm = LSTM(64, activation='relu', batch_input_shape=(batch_size,sequence_length,state_size),return_sequences=False)
+        self.lstm = LSTM(64, batch_input_shape=(batch_size,sequence_length,state_size),return_sequences=False)
         self.fc1 = Dense(128, activation='relu')
         self.fc2 = Dense(128, activation='relu')
         self.fc_out = Dense(action_size,
@@ -227,10 +227,10 @@ class DQNAgent:
         self.discount_factor = 0.99
         self.learning_rate = 0.0001
         self.epsilon = 1
-        self.epsilon_decay = 0.9
+        self.epsilon_decay = 0.9999
         self.epsilon_min = 0.001
         self.batch_size = 64
-        self.train_start = 500
+        self.train_start = 1000
 
         # 리플레이 메모리, 최대 크기 100
         self.memory = deque(maxlen=3000*8)
@@ -242,8 +242,9 @@ class DQNAgent:
         # 모델과 타깃 모델 생성
         self.model = DQN(action_size,state_size,self.batch_size,self.sequence_length)
         self.target_model = DQN(action_size,state_size,self.batch_size,self.sequence_length)
+        self.model.load_weights("/home/mds/Desktop/highway_episodic/DQN/DQN_LSTM/save_model/traind_with_LSTM_reduced_action_const_LC(900episode)/model")
+        self.target_model.load_weights("/home/mds/Desktop/highway_episodic/DQN/DQN_LSTM/save_model/traind_with_LSTM_reduced_action_const_LC(900episode)/model")
         self.optimizer = Adam(lr=self.learning_rate)
-
         # 타깃 모델 초기화
         self.update_target_model()
 
@@ -257,16 +258,16 @@ class DQNAgent:
         if np.random.rand() <= self.epsilon:
             return random.randrange(self.action_size)
         elif last_action == 1 and env.Left_action:
-            print('last_action == 1 and env.Left_action: ',env.Left_action)
+            print('last_action: ',last_action,' and env.Left_action: ',env.Left_action)
             return 1
         elif last_action == 3 and env.Left_action:
-            print('last_action == 3 and env.Left_action: ',env.Left_action)
+            print('last_action: ',last_action,' and env.Left_action: ',env.Left_action)
             return 3
         elif last_action == 2 and env.Right_action:
-            print('last_action == 2 and env.Right_action: ',env.Right_action)
+            print('last_action: ',last_action,' and env.Right_action: ',env.Right_action)
             return 2
         elif last_action == 4 and env.Right_action:
-            print('last_action == 4 and env.Right_action: ',env.Right_action)
+            print('last_action: ',last_action,' and env.Right_action: ',env.Right_action)
             return 4
         else:
             # print('state: ',state)
@@ -323,7 +324,7 @@ class DQNAgent:
 
 if __name__ == "__main__":
     net = "highway_episodic.net.xml"
-    sumocfg = "C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/highway_episodic.sumocfg"
+    sumocfg = "/home/mds/Desktop/highway_episodic/highway_episodic.sumocfg"
     veh = "ego"
     options = get_options()
     if options.nogui:

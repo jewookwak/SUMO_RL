@@ -83,6 +83,7 @@ class rlEnv():
     coefficient=[0,0,0,0]
     Right_SD = False
     Left_SD = False
+    Front_SD = True
     gui_on = True
     vehicles_tau=[random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27)]
     def __init__(self, sumoBinary, net_file: str, cfg_file: str,  veh:str, use_gui: bool = True,
@@ -113,8 +114,8 @@ class rlEnv():
         sumo_cmd = [self.sumoBinary,
             '-c', self.sumocfg,
             '--start','true',
-            '--route-files',"C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/highway_episodic2.rou.xml",
-            '--gui-settings-file','C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/viewsettings.xml',
+            '--route-files','/home/mds/Desktop/highway_episodic/highway_episodic2.rou.xml',
+            '--gui-settings-file','/home/mds/Desktop/highway_episodic/viewsettings.xml',
             '--lanechange.duration', '3',
             # '--collision.action', 'warn',
             #  '--collision.stoptime','5',
@@ -183,6 +184,7 @@ class rlEnv():
         rlEnv.heading_error_term=[]
         rlEnv.Right_SD = False
         rlEnv.Left_SD = False
+        rlEnv.Front_SD = True
         rlEnv.vehicles_tau=[random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27),random.uniform(0.74,2.27)]
 
 
@@ -196,7 +198,7 @@ class rlEnv():
         left_initial_v =[random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23)]
         right_initial_v =[random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23),random.uniform(22.5,23)]
         ego_rand = random.uniform(70,100)
-        forward_rand = random.uniform(150,160)
+        forward_rand = random.uniform(160,170)
         r0 =random.uniform(0,31)
         l0 =random.uniform(0,31)
         r_delta1 = random.uniform(31,40)
@@ -290,7 +292,7 @@ class rlEnv():
         df_ego_control = pd.DataFrame(rlEnv.ego_control,columns=col_control)
         df_ego_action = pd.DataFrame(rlEnv.last_action,columns=col_action)
         df_reward = pd.DataFrame(rlEnv.rewards,columns=col_reward)
-        os.chdir('C:/Users/jewoo/OneDrive/바탕 화면/highway_episodic/DQN_LSTM/data_log/1')
+        os.chdir('/home/mds/Desktop/highway_episodic/DQN/DQN_LSTM/data_log/1')
         df_ego.to_csv('log_data_ego.csv')
         df_rear.to_csv('log_data_rear.csv')
         df_forward.to_csv('log_data_forward.csv')
@@ -352,8 +354,6 @@ class rlEnv():
                     rlEnv.ego_LC_completed =True
                     self.done = True
                     print('Lanechange completed')
-                    if self.done:
-                        print('done = True')
                     return True
                 else:
                     return False
@@ -1413,6 +1413,26 @@ class rlEnv():
             else:
                 # print('Forward_SD_negative_reward: ',des_clearance -x_forward)
                 return x_forward-des_clearance
+    def __Front_SD_check(self):
+        id = 'ego'
+        time_gap_LK = 1.36
+        c_LK = 2 #min clearance for lane keeping
+        ego_v_x = traci.vehicle.getSpeed(id)
+        ego_x_pos = traci.vehicle.getPosition(id)[0]
+        ego_a_x = traci.vehicle.getAcceleration(id)
+
+        if traci.vehicle.getLeader(id) is not None:
+            Leader_id,x_forward = traci.vehicle.getLeader(id)
+            rel_v_with_front = traci.vehicle.getSpeed(Leader_id) - ego_v_x
+            v_p = traci.vehicle.getSpeed(Leader_id)
+            des_clearance = c_LK + time_gap_LK*v_p #앞차 속도에 따른 앞차와의 ACC 안전거리 (safe)
+            
+            if (x_forward > des_clearance) or ((x_forward <= des_clearance) and (ego_v_x<=traci.vehicle.getSpeed(Leader_id)) and (ego_a_x <= 0)):
+                rlEnv.Front_SD = True
+            else:
+                # print('Forward_SD_negative_reward: ',des_clearance -x_forward)
+                rlEnv.Front_SD = False
+        
                 
     # def __LaneChange_SD_negative_reward(self): # SD_LC 침범 안하면 reward 0, SD_LC 침범한 거리 만큼 negative reward , 앞뒤 차량 SD_LC 침범시 reward -50
     #     id = 'ego'
@@ -1565,7 +1585,7 @@ class rlEnv():
             Left_follower_id = self.__find_followers(id, v,LEFT_FOLLOWER,RIGHT_FOLLOWER)[0]
             Right_follower_id = self.__find_followers(id, v,LEFT_FOLLOWER,RIGHT_FOLLOWER)[1]
         traci.vehicle.unsubscribeContext(str(id), tc.CMD_GET_VEHICLE_VARIABLE, 200.0)
-        if traci.vehicle.getLaneIndex(id) == (0 or 2):
+        if traci.vehicle.getLaneIndex(id) == 0 or traci.vehicle.getLaneIndex(id) == 2:
             front_relative_velocity_term = max( [traci.vehicle.getSpeed(id) - traci.vehicle.getSpeed(Leader_id) ,0] )*time_gap_LC_1
             front_minimum_clearance_trem = max([traci.vehicle.getSpeed(id)*time_gap_LC_2,c_LC])
             front_SD_LC = front_relative_velocity_term +front_minimum_clearance_trem
@@ -1575,16 +1595,16 @@ class rlEnv():
             # print('back_SD_LC: ',back_SD_LC)
             # print('front_SD_LC: ',front_SD_LC)
             if((traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(follower_id)[0])>= back_SD_LC):
-                # print('LaneChange_SD_negative_reward -> None ')
+                print('LaneChange_SD_negative_reward -> None ')
                 return 0
             elif((traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) < front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(follower_id)[0])>= back_SD_LC):
-                # print('LaneChange_SD_negative_reward-> forward ')
+                print('LaneChange_SD_negative_reward-> forward ')
                 return (traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) - front_SD_LC 
             elif((traci.vehicle.getPosition(Leader_id)[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(follower_id)[0]) < back_SD_LC):
-                # print('LaneChange_SD_negative_reward-> rear ')
+                print('LaneChange_SD_negative_reward-> rear ')
                 return (ego_x_pos -traci.vehicle.getPosition(follower_id)[0]) - back_SD_LC
             else:
-                # print('LaneChange_SD_negative_reward-> forward and rear')
+                print('LaneChange_SD_negative_reward-> forward and rear')
                 return-50
 
         elif action == 5 and traci.vehicle.getLaneIndex(id) == 1: #왼쪽 차로로 이동
@@ -1597,15 +1617,16 @@ class rlEnv():
                 back_SD_LC = back_relative_velocity_term + back__minimum_clearance_trem
 
                 if((traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0])>= back_SD_LC):
-                    return 0
+                    print("LaneChange_SD_negative_reward : left 0")
+                    return 0                    
                 elif((traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) < front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0])>= back_SD_LC):
-                    # print('LaneChange_SD_negative_reward : left forward   ',(traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC )
+                    print('LaneChange_SD_negative_reward : left forward   ',(traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC )
                     return (traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC 
                 elif((traci.vehicle.getPosition(Left_leader_id[0][0])[0]-ego_x_pos) >= front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) < back_SD_LC):
-                    # print('LaneChange_SD_negative_reward : left rear   ',(ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) - back_SD_LC)
+                    print('LaneChange_SD_negative_reward : left rear   ',(ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) - back_SD_LC)
                     return (ego_x_pos -traci.vehicle.getPosition(Left_follower_id)[0]) - back_SD_LC
                 else:
-                    # print('LaneChange_SD_negative_reward : left forward and rear    ',-50)
+                    print('LaneChange_SD_negative_reward : left forward and rear    ',-50)
                     return-50
             else:
                 return 0
@@ -1620,15 +1641,16 @@ class rlEnv():
                 back__minimum_clearance_trem = max([traci.vehicle.getSpeed(Right_follower_id)*time_gap_LC_2,c_LC])
                 back_SD_LC = back_relative_velocity_term + back__minimum_clearance_trem
                 if((traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) >=front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0])>=back_SD_LC):
+                    print('LaneChange_SD_negative_reward : right 0')
                     return 0
                 elif((traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) <front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0])>=back_SD_LC): 
-                    # print('LaneChange_SD_negative_reward : forward     ',(traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC)
+                    print('LaneChange_SD_negative_reward : right forward     ',(traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC)
                     return (traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) - front_SD_LC
                 elif((traci.vehicle.getPosition(Right_leader_id[0][0])[0]-ego_x_pos) >=front_SD_LC  and (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0])<back_SD_LC):
-                    # print('LaneChange_SD_negative_reward : rear     ',(ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0]) - back_SD_LC)
+                    print('LaneChange_SD_negative_reward : right rear     ',(ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0]) - back_SD_LC)
                     return (ego_x_pos -traci.vehicle.getPosition(Right_follower_id)[0]) - back_SD_LC
                 else:
-                    # print('LaneChange_SD_negative_reward : forward and rear     ',-50)
+                    print('LaneChange_SD_negative_reward : right forward and rear     ',-50)
                     return -50
             else:
                 return 0
@@ -1642,9 +1664,9 @@ class rlEnv():
         Reward.append(traci.simulation.getTime())
         w1= 0.5 # collision negative reward
         w2 =0.01 # SD_LC not satisfied negative reward
-        w2_1 = 0.002 #SD_LK not satisfied negative reward
+        w2_1 = 0.01 #SD_LK not satisfied negative reward
         w3 = 0.005 # distance to biggest empty space positive reward
-        w4 = 0.01*2 # LK continue if rear accel is far away positive reward or if rear accel is closer give negative reward
+        w4 = 0.1*5 # LK continue if rear accel is far away positive reward or if rear accel is closer give negative reward
         w5 =w5_1= 0.5 # LC succeed positive reward
         w6 = 0.01 # over LC negative reward
         w7 = 0.01 # to target lane positive reward
@@ -1667,7 +1689,11 @@ class rlEnv():
         else:
             rear_TTC = 4
         self.__SD_check(action)
-        if action == 7 and Lane == 1 and np.abs(LLP)<=0.56 and (rear_TTC<2.4 or (rlEnv.Left_SD == False and rlEnv.Right_SD == False)):
+        self.__Front_SD_check()
+        if action == 7 and Lane == 1 and np.abs(LLP)<=0.56 and (rear_TTC<2.4  and (rlEnv.Left_SD == False and rlEnv.Right_SD == False))and rlEnv.Front_SD:
+            print('rlEnv.Left_SD: ',rlEnv.Left_SD )
+            print('rlEnv.Right_SD: ',rlEnv.Right_SD)
+            print('rlEnv.Front_SD: ',rlEnv.Front_SD)
             reward=0 #reward 0
             Reward.append(0)
             Reward.append(0)
@@ -1701,7 +1727,7 @@ class rlEnv():
             else:
                 Reward.append(0)
                 reward +=0
-            if action == (5 or 6):
+            if (action == 1 or action == 2 or action == 3 or action == 4):
                 # print('LaneChange_SD_negative_reward: ',self.__LaneChange_SD_negative_reward(action)*w2)
                 reward += self.__LaneChange_SD_negative_reward(action)*w2
                 Reward.append(self.__LaneChange_SD_negative_reward(action)*w2)
@@ -1720,7 +1746,7 @@ class rlEnv():
                     reward +=0
 
                 rear_clearance = traci.vehicle.getPosition('ego')[0] - traci.vehicle.getPosition('accel.rear')[0]
-                # print('rear_clearance: ',rear_clearance)
+                print('rear_clearance: ',rear_clearance)
                     # print('rear_clearance: ',rear_clearance) 
                 if traci.vehicle.getLaneIndex('ego')==1:
                     if(rear_clearance<=80 and rear_clearance>=0): # 차로 변경을 위한 가장큰 빈공간의 중앙에 가까워질 수 록 보상을 준다.
@@ -1749,7 +1775,7 @@ class rlEnv():
                 # if (rear_clearance<-6):
                 #     reward += np.abs(rear_clearance)*w4
                 # print('LC completed: ',self.__ego_vehicle_LC_completed())
-                if (self.__ego_vehicle_LC_completed() and rear_clearance<=80 and rear_clearance >=-30):
+                if (self.__ego_vehicle_LC_completed() and rear_clearance<=40 and rear_clearance >=-30):
                     # print('LC success reward: ',self.__chosen_space_size_reward('ego')*w5 )
                     reward += self.__chosen_space_size_reward('ego')*w5
                     Reward.append(self.__chosen_space_size_reward('ego')*w5)
@@ -1760,16 +1786,14 @@ class rlEnv():
                 # vehs = traci.vehicle.getIDList()
                 
                 
-                if(rear_clearance>80 and self.__ego_vehicle_LC_completed()): #후방 차량 충돌 판단 불가능 범위에서 불필요한 차로 변경
+                if(rear_clearance>40 and self.done): #후방 차량 충돌 판단 불가능 범위에서 불필요한 차로 변경
                     # print('early LC negative reward: ',-20 *w5_1)
                     reward -= 20*w5_1
                     Reward.append(-20*w5_1)  
                 else:
                     Reward.append(0)
                     reward +=0    
-                # print('rear_clearance: ',rear_clearance<80)
-                # print('rlEnv.Left_SD: ',rlEnv.Left_SD)
-                # print('rlEnv.Right_SD: ',rlEnv.Right_SD)
+  
                 if len(rlEnv.last_action)>0 and rear_clearance<80 and (((action == 1 or action == 3) and rlEnv.Left_SD == True) or ((action == 2 or action ==  4) and rlEnv.Right_SD == True)):                    
                     if rlEnv.Left_action == True and (action == 1 or action == 3):
                         if Lane == 1 and LLP >0:
@@ -1806,52 +1830,6 @@ class rlEnv():
                     reward += 0
                     Reward.append(0)
 
-                    
-
-
-
-                # LLP = traci.vehicle.getLateralLanePosition('ego')
-                # Lane = traci.vehicle.getLaneIndex('ego')
-                # if len(rlEnv.ego)>0:
-                #     if(Lane == 0 and action==6):
-                #         if LLP >=0 and rlEnv.ego[-1][7]<=-1.2:
-                #             reward -= 2**(1-LLP)*w6
-                #             Reward.append(-2**(1-LLP)*w6)
-                #             print("LLP*w6: ",LLP*w6)
-                #         else:
-                #             Reward.append(0)
-                #         if LLP<0:
-                #             reward += LLP*w6_1
-                #             print("LLP*w6: ",LLP*w6_1)
-                #             Reward.append(LLP*w6_1)
-
-                #         else:
-                #             Reward.append(0)
-                #     else:
-                #         Reward.append(0)
-                #         Reward.append(0)
-                #     if(Lane == 2 and action==5):
-                #         if LLP<=0 and rlEnv.ego[-1][7]>=1.2:
-                #             reward -=2**(1+LLP)*w6_2
-                #             print("LLP*w6: ",LLP*w6_2)
-                #             Reward.append(-2**(1+LLP)*w6_2)
-                #         else:
-                #             Reward.append(0)
-                #         if LLP>0:
-                #             reward -=LLP*w6_3
-                #             print("LLP*w6: ",LLP*w6_3)
-                #             Reward.append(-LLP*w6_3)
-                #         else:
-                #             Reward.append(0)
-                #     else:
-                #         Reward.append(0)
-                #         Reward.append(0)
-                # else:
-                #     Reward.append(0)
-                #     Reward.append(0)
-                #     Reward.append(0)
-                #     Reward.append(0)
-                    
             else:
                 Reward.append(0)
                 Reward.append(0)
@@ -1861,10 +1839,7 @@ class rlEnv():
                 Reward.append(0)
                 Reward.append(0)
                 reward +=0
-                # Reward.append(0)
-                # Reward.append(0)
-                # Reward.append(0)
-                # Reward.append(0)
+
         Reward.append(reward)
         rlEnv.rewards.append(Reward)
         return reward
@@ -2312,8 +2287,8 @@ class rlEnv():
         if 'ego' in vehs:              
             if self.gui_on:
                 traci.gui.trackVehicle(traci.gui.DEFAULT_VIEW, self.egoID)
-            if(traci.vehicle.getLaneIndex('ego')==2 and traci.vehicle.getLateralLanePosition('ego')>=0)or(traci.vehicle.getLaneIndex('ego')==0 and traci.vehicle.getLateralLanePosition('ego')<=0):
-                self.done = True
+            # if(traci.vehicle.getLaneIndex('ego')==2 and traci.vehicle.getLateralLanePosition('ego')>=0)or(traci.vehicle.getLaneIndex('ego')==0 and traci.vehicle.getLateralLanePosition('ego')<=0):
+            #     self.done = True
 
 
         if len(rlEnv.ego) !=0:
@@ -2422,7 +2397,8 @@ class rlEnv():
                     self.__set_ego_a_movetoXY('ego',self.__ego_a_desire(v_ego,v_t,2,s1,1))
                     
                     control = [traci.simulation.getTime(),self.__ego_a_desire(v_ego,v_t,2,s1,1),self.__set_ego_a_y_desired('ego')]
-                    rlEnv.Left_action = False        
+                    rlEnv.Left_action = False     
+                    rlEnv.ego_control.append(control)   
                 else:
                     self.LC_Left(action)
 
@@ -2439,6 +2415,7 @@ class rlEnv():
                     self.__set_ego_a_movetoXY('ego',self.__ego_a_desire(v_ego,v_t,2,s2,2))
                     control = [traci.simulation.getTime(),self.__ego_a_desire(v_ego,v_t,2,s2,2),self.__set_ego_a_y_desired('ego')]
                     rlEnv.Right_action = False
+                    rlEnv.ego_control.append(control)
                 else:
                     self.LC_Right(action)
 
@@ -2456,6 +2433,7 @@ class rlEnv():
                     self.__set_ego_a_movetoXY('ego',self.__ego_a_desire2(v_ego,v_t,1,s3,3))
                     control = [traci.simulation.getTime(),self.__ego_a_desire2(v_ego,v_t,1,s3,3),self.__set_ego_a_y_desired('ego')]
                     rlEnv.Left_action = False
+                    rlEnv.ego_control.append(control)
                 else:
                     self.LC_Left(action)
             elif action == 4: #s4 <0
@@ -2471,6 +2449,7 @@ class rlEnv():
                     self.__set_ego_a_movetoXY('ego',self.__ego_a_desire2(v_ego,v_t,1,s4,4))
                     control = [traci.simulation.getTime(),self.__ego_a_desire2(v_ego,v_t,1,s4,4),self.__set_ego_a_y_desired('ego')]
                     rlEnv.Right_action = False
+                    rlEnv.ego_control.append(control)
                 else:                    
                     self.LC_Right(action)
 

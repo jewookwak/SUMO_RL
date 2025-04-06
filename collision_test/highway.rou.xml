@@ -1,0 +1,80 @@
+<routes>
+        <!-- Regular cars: moderate parameters -->
+        <vType id="car" 
+            accel="2.9" 
+            decel="4.5" 
+            departSpeed="22" 
+            length="5" 
+            maxSpeed="33.3" 
+            minGap="2.0" 
+            sigma="0.5" 
+            lcSpeedGain="1.0"
+            carFollowModel="Krauss" 
+            laneChangeModel="LC2013"
+            color="0,1,0" />
+        
+        <!-- Trucks: larger, slower vehicles -->
+        <vType id="truck" 
+            accel="1.5" 
+            decel="3.5" 
+            departSpeed="33" 
+            emergencyDecel="7.0" 
+            length="12" 
+            maxSpeed="25.0" 
+            minGap="2.5" 
+            sigma="0.8" 
+            lcStrategic="0.5" 
+            lcSpeedGain="0.5" 
+            vClass="truck" 
+            carFollowModel="ACC" 
+            laneChangeModel="LC2013"
+            color="0,0,1" />
+            
+        <!-- Aggressive vehicles: minimal gap, high accel/decel -->
+        <vType id="aggressive" 
+            accel="4.0" 
+            decel="9.0" 
+            departSpeed="33" 
+            length="12" 
+            maxSpeed="40.0" 
+            minGap="0.1" 
+            sigma="0.9" 
+            emergencyDecel="10.0"
+            lcSpeedGain="1.5"
+            vClass="truck" 
+            lcPushy="1.0" 
+            lcAssertive="1.0"
+            lcImpatience="1.0"
+            carFollowModel="Wiedemann" 
+            laneChangeModel="LC2013"
+            color="1,0,0" />
+
+        <!-- Car flows (regular pattern) -->
+        <flow id="car0" departPos="free" departLane="2" begin="0.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        <flow id="car1" departPos="free" departLane="1" begin="5.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        <flow id="car2" departPos="free" departLane="0" begin="10.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        <flow id="car3" departPos="free" departLane="2" begin="15.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        <flow id="car4" departPos="free" departLane="1" begin="20.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        <flow id="car5" departPos="free" departLane="0" begin="25.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        <flow id="car6" departPos="free" departLane="2" begin="30.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        <flow id="car7" departPos="free" departLane="1" begin="35.00" from="E5" to="E1" end="500.00" number="30" type="car"/>
+        
+        <!-- Truck flows (slower vehicles) -->
+        <flow id="truck0" departPos="free" departLane="2" begin="50.00" from="E5" to="E1" end="500.00" number="10" type="truck"/>
+        <!-- Aggressive truck flows (high collision probability) -->
+        <flow id="aggr0" departPos="free" departLane="1" begin="75.00" from="E5" to="E1" end="500.00" number="10" type="aggressive"/>
+        <!-- Truck flows (slower vehicles) -->
+        <flow id="truck1" departPos="free" departLane="1" begin="100.00" from="E5" to="E1" end="500.00" number="10" type="truck"/>
+        <!-- Aggressive truck flows (high collision probability) -->
+        <flow id="aggr1" departPos="free" departLane="2" begin="125.00" from="E5" to="E1" end="500.00" number="10" type="aggressive"/>
+        <!-- Truck flows (slower vehicles) -->
+        <flow id="truck2" departPos="free" departLane="2" begin="150.00" from="E5" to="E1" end="500.00" number="10" type="truck"/>
+        <!-- Aggressive truck flows (high collision probability) -->
+        <flow id="aggr2" departPos="free" departLane="1" begin="175.00" from="E5" to="E1" end="500.00" number="10" type="aggressive"/>
+        <!-- Truck flows (slower vehicles) -->
+
+        
+        
+        
+        
+</routes>

@@ -8,13 +8,13 @@ to avoid collisions with unconscious rear vehicles.
 ‒ We deﬁned the input state as the 8 surrounding vehicles and the output action as 6 modes, covering longitudinal and lateral control.  
 
 
-Quick Execution  
+Quick Execution    
 python main.py --rulebase --render  
 
-Basic Train
+Basic Train  
 python main.py --validation_env3 --lstm
 
-Quick Test
+Quick Test  
 python main.py --validation_env3 --test --lstm --weigth_path
 
 

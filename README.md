@@ -15,7 +15,8 @@ Basic Train
 python main.py --validation_env3 --lstm
 
 Quick Test  
-python main.py --validation_env3 --test --lstm --weigth_path
+python main.py --validation_env4 --prev_nstep_lstm --test --weight_path=20250522_2004/prev_nstep_lstm_dqn_model.h5 --state_num=28 --render
+
 
 
 영상(https://youtu.be/M56FDJPp8BQ)

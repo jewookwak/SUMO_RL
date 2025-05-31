@@ -7,4 +7,15 @@ reduce the number of fatalities in rear-end collisions.
 to avoid collisions with unconscious rear vehicles.  
 ‒ We deﬁned the input state as the 8 surrounding vehicles and the output action as 6 modes, covering longitudinal and lateral control.  
 
+
+Quick Execution  
+python main.py --rulebase --render  
+
+Basic Train
+python main.py --validation_env3 --lstm
+
+Quick Test
+python main.py --validation_env3 --test --lstm --weigth_path
+
+
 영상(https://youtu.be/M56FDJPp8BQ)

@@ -7,6 +7,20 @@ reduce the number of fatalities in rear-end collisions.
 to avoid collisions with unconscious rear vehicles.  
 ‒ We deﬁned the input state as the 8 surrounding vehicles and the output action as 6 modes, covering longitudinal and lateral control.  
 
+## 🔧 설치 방법
+### 필요 라이브러리
+pip install tensorflow numpy matplotlib gym
+### SUMO 설치 방법
+https://sumo.dlr.de/docs/Installing/Linux_Build.html  
+### 시스템 요구사항
+- Python 3.8+  
+- CUDA 지원 GPU (권장)  
+
+## 📁 프로젝트 구조
+├── main.py             # 메인 실행 파일
+├── train/              # 학습,에이전트,네트워크 파일
+├── weights/            # 학습한 모델 저장
+└── logs/               # 학습 로그 기록
 
 Quick Execution    
 python main.py --rulebase --render  

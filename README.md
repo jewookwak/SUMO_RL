@@ -6,7 +6,7 @@ reduce the number of fatalities in rear-end collisions.
 ‒ In this study, we used DQN, which is known for its eﬀectiveness with discrete input and output states, to ﬁnd the optimal empty space
 to avoid collisions with unconscious rear vehicles.  
 ‒ We deﬁned the input state as the 8 surrounding vehicles and the output action as 6 modes, covering longitudinal and lateral control.  
-[보고서](./석사논문연구 중간 보고서.pdf)
+[보고서](석사논문연구%20중간%20보고서.pdf)
 
 ## 🔧 설치 방법
 ### 필요 라이브러리

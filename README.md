@@ -17,10 +17,11 @@ https://sumo.dlr.de/docs/Installing/Linux_Build.html
 - CUDA 지원 GPU (권장)  
 
 ## 📁 프로젝트 구조
-├── main.py             # 메인 실행 파일
-├── train/              # 학습,에이전트,네트워크 파일
-├── weights/            # 학습한 모델 저장
-└── logs/               # 학습 로그 기록
+├── main.py             # 메인 실행 파일  
+├── train/              # 학습,에이전트,네트워크 파일 
+├── test/               # 학습한 모델 테스트    
+├── weights/            # 학습한 모델 저장  
+└── logs/               # 학습 로그 기록  
 
 Quick Execution    
 python main.py --rulebase --render  

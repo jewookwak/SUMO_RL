@@ -19,13 +19,13 @@ https://sumo.dlr.de/docs/Installing/Linux_Build.html
 
 ## 📁 프로젝트 구조
 
-SUMO_RL_RainbowDQN
-├── main.py             # 메인 실행 파일    
-├── envs/               # SUMO 시뮬레이션 환경들
-├── train/              # 학습,에이전트,네트워크 파일     
-├── test/               # 학습한 모델 테스트    
-├── weights/            # 학습한 모델 저장  
-└── logs/               # 학습 로그 기록  
+SUMO_RL_RainbowDQN  
+├── main.py             # 메인 실행 파일     
+├── envs/               # SUMO 시뮬레이션 환경들  
+├── train/              # 학습,에이전트,네트워크 파일       
+├── test/               # 학습한 모델 테스트      
+├── weights/            # 학습한 모델 저장    
+└── logs/               # 학습 로그 기록    
 
 Quick Execution    
 python main.py --rulebase --render  
